@@ -1,5 +1,37 @@
 import { useState } from 'react'
 
+const Button = ({ handleClick, text }) => (
+  <button onClick={handleClick}>{text}</button>
+)
+
+const StatisticLine = ({ text, value }) => (
+  <tr>
+    <td>{text}</td>
+    <td>{value}</td>
+  </tr>
+)
+
+const Statistics = ({good,neutral,bad}) => {
+  const total=good + neutral + bad
+  const avg= (good*1 + neutral*0 + bad*(-1))/total
+  const pos=(good/total)*100
+
+  return (
+    <div>
+      <table>
+        <tbody>
+          <StatisticLine text="good" value={good} />
+          <StatisticLine text="neutral" value={neutral} />
+          <StatisticLine text="bad" value={bad} />
+          <StatisticLine text="all" value={total} />
+          <StatisticLine text="average" value={avg} />
+          <StatisticLine text="positive" value={`${pos} %`} />
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
 const App = () => {
   // save clicks of each button to its own state
   const [good, setGood] = useState(0)
@@ -8,40 +40,28 @@ const App = () => {
   const [total, setTotal] = useState(0)
 
   const setToFeedback1 = () => {
-    const updatedGood= good+1
-    setGood(updatedGood)
-    setTotal(updatedGood + neutral + bad)
+    setGood(good + 1)
   }
   const setToFeedback2 = () => {
-    const updatedNeutral= neutral+1
-    setNeutral(updatedNeutral)
-    setTotal(good + updatedNeutral + bad)
+    setNeutral(neutral + 1)
   }
   const setToFeedback3 = () => {
-    const updatedBad= bad+1
-    setBad(updatedBad)
-    setTotal(good + neutral + updatedBad)
+    setBad(bad + 1)
   }
-  const avg= (good*1 + neutral*0 + bad*(-1))/total
+  
 
   return (
     <div>
       <h1>give feedback</h1>
-      <button onClick={(setToFeedback1)}>
-        good
-      </button>
-      <button onClick={(setToFeedback2)}>
-        neutral  
-      </button>
-      <button onClick={(setToFeedback3)}>
-        bad
-      </button>
+      <Button handleClick={setToFeedback1} text="good"/>
+      <Button handleClick={setToFeedback2} text="neutral"/>
+      <Button handleClick={setToFeedback3} text="bad"/>
       <h1>statistics</h1>
-      <p>good {good}</p>
-      <p>neutral {neutral}</p>
-      <p>bad {bad}</p>
-      <p>all {total}</p>
-      <p>average {avg}</p>
+      {good || neutral || bad ? (
+        <Statistics good={good} neutral={neutral} bad={bad} />) 
+        : ( 
+        <p>No feedback given</p>
+      )}
 
     </div>
   )
