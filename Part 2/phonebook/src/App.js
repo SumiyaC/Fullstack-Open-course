@@ -3,12 +3,16 @@ import Persons from './Components/Persons'
 import Filter from './Components/Filter'
 import PersonForm from './Components/PersonForm'
 import personService from './services/personService';
+import './index.css'
+//import Notification from './Components/Notification'
+
 
 const App = () => {
   const [persons, setPersons] = useState([]) 
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('');
+  const [message, setMessage] = useState(null)
   
   useEffect(() => {
     personService.getAll().then((initialPersons) => {
@@ -32,7 +36,12 @@ const App = () => {
       person.name.toLowerCase().includes(filter.toLowerCase())
       )
       : persons
-
+  const showMessage = (message, isError = false) => {
+    setMessage({ message, isError });
+    setTimeout(() => {
+      setMessage(null);
+    }, 5000);
+  }
   
   const addPerson = (event) => {
     event.preventDefault();
@@ -54,9 +63,11 @@ const App = () => {
           );
           setNewName("");
           setNewNumber("");
+          showMessage(`Number updated for ${updatedPerson.name}`, false)
         })
         .catch((error) => {
-          console.error("Error updating person:", error);
+          console.error("Error updating person:", error)
+          showMessage(`Information of  ${updatedPerson.name} has already been removed from the server`, true)
         });
     }}
     else {
@@ -71,9 +82,12 @@ const App = () => {
           setPersons(persons.concat(createdPerson));
           setNewName('');
           setNewNumber('');
+          showMessage(`Added ${createdPerson.name}`, false);
         })
+       
         .catch((error) => {
           console.error('Error saving person:', error);
+          showMessage('Failed to add person.', true);
         });
     }
   };
@@ -86,18 +100,26 @@ const App = () => {
         .remove(id)
         .then(() => {
           setPersons(persons.filter((person) => person.id !== id));
+          showMessage(`Deleted ${personToDelete.name}`, false);
         })
         .catch((error) => {
           alert(`Error deleting person: ${error.message}`);
+          showMessage('Failed to delete person.', true);
         });
     }
   };
 
-  
-  
+
   return (
     <div>
       <h2>Phonebook</h2>
+      {message && (
+        <div
+          className={`message ${message.isError ? 'error' : 'success'}`}
+        >
+          {message.message}
+        </div>
+      )}
       <Filter value={filter} onChange={handleFilterChange}/>
       <h2>Add a new</h2>
       <PersonForm newName={newName} newNumber={newNumber} handleNameChange={handleNameChange}
